@@ -35,6 +35,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import br.org.isvi.mgadmin.SystemMainService.TipoItens;
+import java.util.ResourceBundle;
 
 public class MainWindow {
 
@@ -109,7 +110,7 @@ public class MainWindow {
 				}
 			}
 		});
-		mntmOpen.setText("Open");
+		mntmOpen.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmOpen.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmAdd = new MenuItem(menuMainTree, SWT.NONE);
 		mntmAdd.addSelectionListener(new SelectionAdapter() {
@@ -133,7 +134,7 @@ public class MainWindow {
 				}
 			}
 		});
-		mntmAdd.setText("Add");
+		mntmAdd.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmRemove = new MenuItem(menuMainTree, SWT.NONE);
 		mntmRemove.addSelectionListener(new SelectionAdapter() {
@@ -151,7 +152,7 @@ public class MainWindow {
 				}	
 			}
 		});
-		mntmRemove.setText("Remove");
+		mntmRemove.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmRemove.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmClose = new MenuItem(menuMainTree, SWT.NONE);
 		mntmClose.addSelectionListener(new SelectionAdapter() {
@@ -169,7 +170,40 @@ public class MainWindow {
 				}				
 			}
 		});
-		mntmClose.setText("Close");
+		mntmClose.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmClose.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(menu);
+		
+		MenuItem mntmFile = new MenuItem(menu, SWT.CASCADE);
+		mntmFile.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmFile.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu_1 = new Menu(mntmFile);
+		mntmFile.setMenu(menu_1);
+		
+		MenuItem mntmAddServer = new MenuItem(menu_1, SWT.NONE);
+		mntmAddServer.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmAddServer.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmEdit = new MenuItem(menu, SWT.CASCADE);
+		mntmEdit.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmEdit.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu_2 = new Menu(mntmEdit);
+		mntmEdit.setMenu(menu_2);
+		
+		MenuItem mntmCopy = new MenuItem(menu_2, SWT.NONE);
+		mntmCopy.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCopy.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmCut = new MenuItem(menu_2, SWT.NONE);
+		mntmCut.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCut.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmPaste = new MenuItem(menu_2, SWT.NONE);
+		mntmPaste.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmPaste.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem menuItem = new MenuItem(menu_2, SWT.SEPARATOR);
+		menuItem.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.other.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmProperties = new MenuItem(menu_2, SWT.NONE);
+		mntmProperties.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmProperties.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Display.setAppName("MgAdmin");
 		Display.setAppVersion("0.1");
@@ -191,7 +225,7 @@ public class MainWindow {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(740, 635);
-		shell.setText("MgAdmin - Administration tool for MongoDB");
+		shell.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.shell.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		shell.setLayout(new FormLayout());
 		
 		SashForm sashForm = new SashForm(shell, SWT.NONE);
@@ -257,7 +291,7 @@ public class MainWindow {
 		formToolkit.paintBordersFor(tabDadosGerais);
 		
 		TabItem tbtmPropriedades = new TabItem(tabDadosGerais, SWT.NONE);
-		tbtmPropriedades.setText("Properties");
+		tbtmPropriedades.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tbtmPropriedades.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Composite composite = new Composite(tabDadosGerais, SWT.NONE);
 		tbtmPropriedades.setControl(composite);
@@ -269,7 +303,7 @@ public class MainWindow {
 		formToolkit.paintBordersFor(styledTextProperties);
 		
 		TabItem tbtmPesquisas = new TabItem(tabDadosGerais, SWT.NONE);
-		tbtmPesquisas.setText("Search");
+		tbtmPesquisas.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tbtmPesquisas.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		SashForm sashPesquisas = new SashForm(tabDadosGerais, SWT.VERTICAL);
 		tbtmPesquisas.setControl(sashPesquisas);
@@ -288,7 +322,7 @@ public class MainWindow {
 		fd_lblUsing.left = new FormAttachment(0, 10);
 		lblUsing.setLayoutData(fd_lblUsing);
 		formToolkit.adapt(lblUsing, true, true);
-		lblUsing.setText("Using:");
+		lblUsing.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.lblUsing.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		txtUsing = new Text(compositeQueryComposer, SWT.BORDER);
 		txtUsing.setEditable(false);
@@ -349,7 +383,7 @@ public class MainWindow {
 		fd_btnRun.left = new FormAttachment(txtUsing, 6);
 		btnRun.setLayoutData(fd_btnRun);
 		formToolkit.adapt(btnRun, true, true);
-		btnRun.setText("Run");
+		btnRun.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.btnRun.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Composite compQueryResult = new Composite(sashPesquisas, SWT.BORDER);
 		formToolkit.adapt(compQueryResult);
@@ -361,14 +395,14 @@ public class MainWindow {
 		formToolkit.paintBordersFor(tabQueryResult);
 		
 		tbtmLog = new TabItem(tabQueryResult, SWT.NONE);
-		tbtmLog.setText("Log");
+		tbtmLog.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tbtmLog.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		stlTxtLog = new StyledText(tabQueryResult, SWT.BORDER | SWT.READ_ONLY);
 		tbtmLog.setControl(stlTxtLog);
 		formToolkit.paintBordersFor(stlTxtLog);
 		
 		TabItem tbtmResult = new TabItem(tabQueryResult, SWT.NONE);
-		tbtmResult.setText("Result");
+		tbtmResult.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tbtmResult.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		treeResultado = new Tree(tabQueryResult, SWT.BORDER);
 		treeResultado.setLinesVisible(true);
@@ -376,13 +410,13 @@ public class MainWindow {
 		tbtmResult.setControl(treeResultado);
 		formToolkit.paintBordersFor(treeResultado);
 		
-		TreeColumn treeColumn = new TreeColumn(treeResultado, SWT.LEFT);
-		treeColumn.setWidth(129);
-		treeColumn.setText("Field");
+		TreeColumn tColField = new TreeColumn(treeResultado, SWT.LEFT);
+		tColField.setWidth(129);
+		tColField.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tColField.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		TreeColumn treeColumn_1 = new TreeColumn(treeResultado, SWT.LEFT);
-		treeColumn_1.setWidth(223);
-		treeColumn_1.setText("Value");
+		TreeColumn tColValue = new TreeColumn(treeResultado, SWT.LEFT);
+		tColValue.setWidth(223);
+		tColValue.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tColValue.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		sashPesquisas.setWeights(new int[] {163, 107});
 		sashMainDireita.setWeights(new int[] {1});
 		scrolledComposite_1.setContent(sashMainDireita);
@@ -401,7 +435,7 @@ public class MainWindow {
 		formToolkit.paintBordersFor(toolBar);
 		
 		ToolItem tltmBtnconnect = new ToolItem(toolBar, SWT.NONE);
-		tltmBtnconnect.setToolTipText("Adds a new connection");
+		tltmBtnconnect.setToolTipText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tltmBtnconnect.toolTipText")); //$NON-NLS-1$ //$NON-NLS-2$
 		tltmBtnconnect.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -412,7 +446,7 @@ public class MainWindow {
 		tltmBtnconnect.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/connect-icon32.png"));
 		
 		ToolItem tltmBtnRefresh = new ToolItem(toolBar, SWT.NONE);
-		tltmBtnRefresh.setToolTipText("Refreshes the items tree");
+		tltmBtnRefresh.setToolTipText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tltmBtnRefresh.toolTipText")); //$NON-NLS-1$ //$NON-NLS-2$
 		tltmBtnRefresh.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
