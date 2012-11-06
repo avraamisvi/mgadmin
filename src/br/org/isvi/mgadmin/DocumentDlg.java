@@ -10,12 +10,16 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -27,9 +31,6 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 public class DocumentDlg extends TitleAreaDialog {
 	private HashMap<String, Object> params;
@@ -63,9 +64,7 @@ public class DocumentDlg extends TitleAreaDialog {
 		CTabFolder tabFolder = new CTabFolder(container, SWT.BORDER);
 		tabFolder.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-//				System.out.println(e.widget); TODO AKI
+			public void widgetSelected(SelectionEvent e) {		
 				
 				if(obj != null)
 					styledTextAdvanced.setText(obj.toString());
@@ -127,10 +126,19 @@ public class DocumentDlg extends TitleAreaDialog {
 		});
 		tbtmAdvancedMode.setControl(styledTextAdvanced);
 
-		this.configTree();
+		getShell().addListener(SWT.Show, new Listener() {
+			
+			@Override
+			public void handleEvent(Event e) {
+				configTree();
+			}
+		});
+		
 		return area;
 	}
 
+	
+	
 	/**
 	 * Create contents of the button bar.
 	 * @param parent
@@ -154,7 +162,8 @@ public class DocumentDlg extends TitleAreaDialog {
 	
 	private void configTree() {
 		if(obj != null) {
-			createItem(obj, treeUserMode);			
+			createItem(obj, treeUserMode);
+			styledTextAdvanced.setText(obj.toString());
 		}		
 	}
 	
