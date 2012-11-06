@@ -131,7 +131,15 @@ public class MainWindow {
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}					
+				}  else if(item.getData("tipo").equals(TipoItens.collection)) {
+					try {
+						systemMainController.openNewDocumentDlg(item, shell);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}					
 				}
+				
+				
 			}
 		});
 		mntmAdd.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -345,6 +353,7 @@ public class MainWindow {
 		formToolkit.paintBordersFor(stlTxtQueryComposer);
 		
 		Button btnRun = new Button(compositeQueryComposer, SWT.NONE);
+		btnRun.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/play_16.png"));
 		btnRun.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -371,8 +380,6 @@ public class MainWindow {
 				} catch(Exception ex1) {
 					ex1.printStackTrace();
 					stlTxtLog.setText("");
-//					double []colors = {1, 0.1, 0.1, 1};
-//					stlTxtLog.set (Color.cocoa_new(display, colors));
 					stlTxtLog.append("Unknown error!");
 				}
 				
@@ -417,6 +424,32 @@ public class MainWindow {
 		TreeColumn tColValue = new TreeColumn(treeResultado, SWT.LEFT);
 		tColValue.setWidth(223);
 		tColValue.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tColValue.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu = new Menu(treeResultado);
+		treeResultado.setMenu(menu);
+		
+		MenuItem mntmEditSelectedItem = new MenuItem(menu, SWT.NONE);
+		mntmEditSelectedItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					TreeItem items[] = treeResultado.getSelection();
+					if(items != null && items.length > 0) {
+						TreeItem item = items[0];					
+						
+						String data = item.getText(1);
+						
+							systemMainController.openEditDocumentDlg(data, item, shell);
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		mntmEditSelectedItem.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmEditSelectedItem.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmExclude = new MenuItem(menu, SWT.NONE);
+		mntmExclude.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmExclude.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		sashPesquisas.setWeights(new int[] {163, 107});
 		sashMainDireita.setWeights(new int[] {1});
 		scrolledComposite_1.setContent(sashMainDireita);

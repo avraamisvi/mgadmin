@@ -105,9 +105,10 @@ public class QueryControler {
 	}	
 	
 	public void createItem(DBObject obj, Tree tree) {		
-		TreeItem item = new TreeItem (tree, SWT.NONE);;
+		TreeItem item = new TreeItem (tree, SWT.NONE);
 		item.setText (0, "Document");
 		item.setText (1, obj.toString());
+		item.setData("db", stm.collection);
 		
 		for(String k : obj.keySet()) {
 			
@@ -129,6 +130,7 @@ public class QueryControler {
 	
 	public void createItem(DBObject obj, TreeItem par) {
 		TreeItem item = new TreeItem (par, SWT.NONE);
+		item.setData("db", stm.collection);
 		
 		if(obj instanceof BasicDBList)
 			item.setText (0, "Array");

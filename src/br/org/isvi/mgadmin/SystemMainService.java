@@ -20,7 +20,9 @@ import br.org.isvi.mgadmin.cfg.Server;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.util.JSON;
 
 public class SystemMainService {
 	
@@ -386,6 +388,49 @@ public class SystemMainService {
 					MessageDialog.openError(parent, "Error", "Unknown Error!");
 			}
 		}
+	}
+	
+	public void openNewDocumentDlg(TreeItem item, Shell parent) throws Exception{
+		
+		DocumentDlg dlg = new DocumentDlg(parent);
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		dlg.setParams(params);
+		
+		if(dlg.open() < 1) {
+			DBObject obj = (DBObject) params.get("dbobj");
+			this.getDBCollection(item).insert(obj);
+			this.refreshMainTreeInfo();
+		}
+	}
+	
+	public void openEditDocumentDlg(String ref, TreeItem item, Shell parent) throws Exception{
+		
+		DocumentDlg dlg = new DocumentDlg(parent);
+		HashMap<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("dbobj", JSON.parse(ref));
+		
+		dlg.setParams(params);
+		
+		if(dlg.open() < 1) {
+			DBObject obj = (DBObject) params.get("dbobj");
+//			this.getDBCollection(item).save(obj);
+//			this.refreshMainTreeInfo();
+		}
+	}		
+	
+	public DBCollection getDBCollection(TreeItem item) {
+		DBCollection ret = null;
+		
+		if(item.getData(TIPO) != null) {
+			Mongo server = servers.get(item.getParentItem().getParentItem());
+			ret = server.getDB(item.getParentItem().getData(NOME).toString()).
+					getCollection(item.getData(NOME).toString()); 
+		} else {
+			ret = (DBCollection) item.getData("db");
+		}
+		
+		return ret;
 	}	
 	
 	public void openNewConnectionDlg(Shell parent) {
