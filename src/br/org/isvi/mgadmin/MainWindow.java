@@ -1,5 +1,7 @@
 package br.org.isvi.mgadmin;
 
+import java.util.ResourceBundle;
+
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
@@ -10,7 +12,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -35,7 +36,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import br.org.isvi.mgadmin.SystemMainService.TipoItens;
-import java.util.ResourceBundle;
+import br.org.isvi.mgadmin.cocoa.CocoaUIEnhancer;
 
 public class MainWindow {
 
@@ -60,6 +61,7 @@ public class MainWindow {
 	 */
 	public static void main(String[] args) {
 		try {
+			Display.setAppName("MgAdmin");
 			Display.getDefault();
 			MainWindow window = new MainWindow();
 			window.open();
@@ -88,6 +90,11 @@ public class MainWindow {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
+		
+		if (SWT.getPlatform().equals("cocoa")) {
+			new CocoaUIEnhancer().earlyStartup();
+		}		
+		
 		createContents();
 		shell.open();
 		shell.layout();
@@ -212,6 +219,12 @@ public class MainWindow {
 		
 		MenuItem mntmProperties = new MenuItem(menu_2, SWT.NONE);
 		mntmProperties.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmProperties.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmHelp = new MenuItem(menu, SWT.CASCADE);
+		mntmHelp.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmHelp.text_1")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu_3 = new Menu(mntmHelp);
+		mntmHelp.setMenu(menu_3);
 		
 		Display.setAppName("MgAdmin");
 		Display.setAppVersion("0.1");
@@ -488,5 +501,6 @@ public class MainWindow {
 		});
 		tltmBtnRefresh.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/Sign-Refresh-icon32.png"));
 
+		
 	}
 }

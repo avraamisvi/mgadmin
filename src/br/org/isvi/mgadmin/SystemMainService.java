@@ -22,6 +22,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
+import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 public class SystemMainService {
@@ -408,14 +409,16 @@ public class SystemMainService {
 		DocumentDlg dlg = new DocumentDlg(parent);
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		
+		DBObject qry = (DBObject) JSON.parse(ref);
+		
 		params.put("dbobj", JSON.parse(ref));
 		
 		dlg.setParams(params);
 		
 		if(dlg.open() < 1) {
 			DBObject obj = (DBObject) params.get("dbobj");
-//			this.getDBCollection(item).save(obj);
-//			this.refreshMainTreeInfo();
+			this.getDBCollection(item).remove(qry);//better approach?
+			this.getDBCollection(item).insert(obj);//better approach?
 		}
 	}		
 	
