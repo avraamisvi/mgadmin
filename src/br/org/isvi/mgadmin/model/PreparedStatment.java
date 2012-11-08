@@ -1,11 +1,11 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.model;
 
 import java.util.HashMap;
 
 import com.mongodb.DBCollection;
 
 public class PreparedStatment {
-	enum Type {
+	public enum Type {
 		find,
 		update,
 		insert,

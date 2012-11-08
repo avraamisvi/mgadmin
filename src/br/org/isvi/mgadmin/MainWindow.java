@@ -4,10 +4,13 @@ import java.util.ResourceBundle;
 
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -20,7 +23,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -35,25 +40,40 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import br.org.isvi.mgadmin.SystemMainService.TipoItens;
 import br.org.isvi.mgadmin.cocoa.CocoaUIEnhancer;
+import br.org.isvi.mgadmin.controllers.MainMenuController;
+import br.org.isvi.mgadmin.controllers.MainTreeMenuController;
+import br.org.isvi.mgadmin.controllers.QueryControler;
+import br.org.isvi.mgadmin.controllers.QueryProcessor;
+import br.org.isvi.mgadmin.controllers.SystemMainController;
+import br.org.isvi.mgadmin.controllers.SystemMainController.TipoItens;
+import br.org.isvi.mgadmin.model.PreparedStatment;
+import br.org.isvi.mgadmin.util.undoredo.operations.CommandsToolController;
+import br.org.isvi.mgadmin.util.undoredo.operations.Document;
 
 public class MainWindow {
 
 	protected Shell shell;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 	private Tree treeMain;
-	public SystemMainService systemMainController;
+	public SystemMainController systemMainController;
 	private QueryControler queryControler = new QueryControler();
 	private Text txtUsing;
 	private Tree treeResultado;
-	private StyledText stlTxtQueryComposer;
 	private TabItem tbtmLog;
 	private StyledText stlTxtLog;
 	private Display display;
 	private StyledText styledTextProperties;
 	private Menu menuMainTree;
+	public StyledText stlTxtQueryComposer;
 	private Composite compositeQueryComposer;
+	public Document documentOperations = new Document("");
+	public CommandsToolController commandToolController = new CommandsToolController();
+	public MainMenuController mainMenuController; 
+	
+	public MainWindow() {
+		mainMenuController = new MainMenuController(this);
+	}
 	
 	/**
 	 * Launch the application.
@@ -77,7 +97,6 @@ public class MainWindow {
 	public void startRealm() {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
-			
 			@Override
 			public void run() {
 				open();				
@@ -93,13 +112,21 @@ public class MainWindow {
 		
 		if (SWT.getPlatform().equals("cocoa")) {
 			new CocoaUIEnhancer().earlyStartup();
-		}		
+		}
+		
+		//Filter for main menu
+		display.addFilter(SWT.KeyDown, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				mainMenuController.filterShortCuts(e);
+			}
+		});
 		
 		createContents();
 		shell.open();
 		shell.layout();
 		
-		systemMainController = new SystemMainService(this);
+		systemMainController = new SystemMainController(this);
 		systemMainController.getServers(treeMain);
 		
 		menuMainTree = new Menu(treeMain);
@@ -197,6 +224,12 @@ public class MainWindow {
 		mntmFile.setMenu(menu_1);
 		
 		MenuItem mntmAddServer = new MenuItem(menu_1, SWT.NONE);
+		mntmAddServer.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				systemMainController.openNewConnectionDlg(shell);
+			}
+		});
 		mntmAddServer.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmAddServer.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmEdit = new MenuItem(menu, SWT.CASCADE);
@@ -204,6 +237,15 @@ public class MainWindow {
 		
 		Menu menu_2 = new Menu(mntmEdit);
 		mntmEdit.setMenu(menu_2);
+		
+		MenuItem mntmUndo = new MenuItem(menu_2, SWT.NONE);
+		mntmUndo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmUndo.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem mntmRedo = new MenuItem(menu_2, SWT.NONE);
+		mntmRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmRedo.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		MenuItem separatorMenuUndoRedo = new MenuItem(menu_2, SWT.SEPARATOR);
+		separatorMenuUndoRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmNewSubmenu.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmCopy = new MenuItem(menu_2, SWT.NONE);
 		mntmCopy.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCopy.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
@@ -355,6 +397,11 @@ public class MainWindow {
 		formToolkit.adapt(txtUsing, true, true);
 		
 		stlTxtQueryComposer = new StyledText(compositeQueryComposer, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		stlTxtQueryComposer.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				commandToolController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
+			}
+		});
 		fd_txtUsing.bottom = new FormAttachment(stlTxtQueryComposer, -6);
 		FormData fd_stlTxtQueryComposer = new FormData();
 		fd_stlTxtQueryComposer.right = new FormAttachment(100, -10);
@@ -390,6 +437,7 @@ public class MainWindow {
 					treeResultado.setItemCount(0);
 					
 					queryControler.fetch(treeResultado);
+					systemMainController.refreshMainTreeInfo();
 				} catch(Exception ex1) {
 					ex1.printStackTrace();
 					stlTxtLog.setText("");
@@ -462,6 +510,24 @@ public class MainWindow {
 		mntmEditSelectedItem.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmEditSelectedItem.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem mntmExclude = new MenuItem(menu, SWT.NONE);
+		mntmExclude.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					TreeItem items[] = treeResultado.getSelection();
+					if(items != null && items.length > 0) {
+						if(MessageDialog.openConfirm(shell, "Warning", "Are you sure you want to exclude this item?")) {
+							TreeItem item = items[0];					
+							String data = item.getText(1);
+							systemMainController.removeDocument(data, item, shell);
+							item.dispose();
+						}
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}				
+			}
+		});
 		mntmExclude.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmExclude.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		sashPesquisas.setWeights(new int[] {163, 107});
 		sashMainDireita.setWeights(new int[] {1});

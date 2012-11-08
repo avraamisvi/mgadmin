@@ -1,10 +1,10 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.controllers;
 
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
 
-import br.org.isvi.mgadmin.SystemMainService.TipoItens;
+import br.org.isvi.mgadmin.controllers.SystemMainController.TipoItens;
 
 public class MainTreeMenuController {
 	

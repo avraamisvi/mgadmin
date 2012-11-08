@@ -1,14 +1,16 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.mongodb.DBCollection;
 
-import br.org.isvi.mgadmin.PreparedStatment.Type;
+import br.org.isvi.mgadmin.MainWindow;
 import br.org.isvi.mgadmin.lex.LexicalAnalyser;
 import br.org.isvi.mgadmin.lex.Symbol;
 import br.org.isvi.mgadmin.lex.SymbolType;
+import br.org.isvi.mgadmin.model.PreparedStatment;
+import br.org.isvi.mgadmin.model.PreparedStatment.Type;
 
 public class QueryProcessor {
 	

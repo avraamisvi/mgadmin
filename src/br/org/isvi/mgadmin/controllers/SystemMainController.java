@@ -1,4 +1,4 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.controllers;
 
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -14,6 +14,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import br.org.isvi.mgadmin.DocumentDlg;
+import br.org.isvi.mgadmin.MainWindow;
+import br.org.isvi.mgadmin.NewCollectionDlg;
+import br.org.isvi.mgadmin.NewConnectionDlg;
+import br.org.isvi.mgadmin.NewDatabaseDlg;
 import br.org.isvi.mgadmin.cfg.Configuration;
 import br.org.isvi.mgadmin.cfg.Server;
 
@@ -25,7 +30,7 @@ import com.mongodb.Mongo;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
-public class SystemMainService {
+public class SystemMainController {
 	
 	private static final String STATS = "stats";
 	private static final String ABERTO = "aberto";
@@ -49,11 +54,11 @@ public class SystemMainService {
 	private MainWindow mainWindow;
 	private Configuration cfg;
 	
-	enum TipoItens {
+	public enum TipoItens {
 		server, collections, collection 
 	};
 	
-	public SystemMainService(MainWindow mainWindow) {
+	public SystemMainController(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 		this.cfg = new Configuration();
 		this.cfg.open();
@@ -522,6 +527,12 @@ public class SystemMainService {
 			
 		}
 	}
+	
+	public void removeDocument(String data, TreeItem item, Shell shell) {
+		DBObject qry = (DBObject) JSON.parse(data);
+		this.getDBCollection(item).remove(qry);
+		this.refreshMainTreeInfo();
+	}	
 	
 	public void removeCollectionItem(TreeItem item, Shell shell) {
 		if(MessageDialog.openConfirm(shell, "Remove Item", "Are you sure you want to remove this item? ( cannot be undone )")) {

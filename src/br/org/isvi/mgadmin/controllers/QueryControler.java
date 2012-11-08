@@ -1,4 +1,4 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.controllers;
 
 import java.util.ArrayList;
 
@@ -6,6 +6,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+
+import br.org.isvi.mgadmin.model.PreparedStatment;
+import br.org.isvi.mgadmin.model.Query;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;

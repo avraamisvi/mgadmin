@@ -1,4 +1,4 @@
-package br.org.isvi.mgadmin;
+package br.org.isvi.mgadmin.model;
 
 import java.util.ArrayList;
 
