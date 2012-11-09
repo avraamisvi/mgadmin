@@ -16,12 +16,13 @@ public class AppendTextCmd implements Command{
 	
 	@Override
 	public void execute() {
+		System.out.println("======INSERT======");
+		
 		for(CharItem chi : charsBuffer) {
 			int c = getStart(chi.caret);
 			doc.text.insert(c, chi.char_);
 		}
 		
-		System.out.println("======INSERT======");
 	}
 
 	@Override

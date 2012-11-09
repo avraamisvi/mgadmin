@@ -12,15 +12,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -31,7 +29,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -39,14 +36,11 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 import br.org.isvi.mgadmin.util.ErrorsDlg;
 import br.org.isvi.mgadmin.util.NameValueDlg;
-import br.org.isvi.mgadmin.util.TreeUtil;
-import br.org.isvi.mgadmin.util.TreeUtil.ConfigEditorConditional;
 
 import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
 
 public class DocumentDlg extends TitleAreaDialog {
 	private HashMap<String, Object> params;
@@ -195,12 +189,30 @@ public class DocumentDlg extends TitleAreaDialog {
 		treeUserMode.setMenu(menuUserMode);
 		
 		MenuItem mnItAddDocument = new MenuItem(menuUserMode, SWT.NONE);
+		mnItAddDocument.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				insertItem(TypeItem.document);
+			}
+		});
 		mnItAddDocument.setText("Add Document");
 		
 		MenuItem mntmAddArray = new MenuItem(menuUserMode, SWT.NONE);
+		mntmAddArray.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				insertItem(TypeItem.array);
+			}
+		});
 		mntmAddArray.setText("Add Array");
 		
 		MenuItem mntmAddValue = new MenuItem(menuUserMode, SWT.NONE);
+		mntmAddValue.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				insertItem(TypeItem.editable);
+			}
+		});
 		mntmAddValue.setText("Add Value");
 		
 		MenuItem userModeMenuSep = new MenuItem(menuUserMode, SWT.SEPARATOR);
@@ -301,8 +313,10 @@ public class DocumentDlg extends TitleAreaDialog {
 		this.params = params;
 	}	
 	
-	private void createItem(DBObject obj, Tree tree) {		
+	private void createItem(DBObject obj, Tree tree) {
+		tree.setItemCount(0);
 		TreeItem item = new TreeItem (tree, SWT.NONE);
+		item.setExpanded(true);
 		item.setText (0, "Document");
 		item.setText (1, obj.toString());
 		item.setData ("obj", obj);
@@ -311,6 +325,7 @@ public class DocumentDlg extends TitleAreaDialog {
 		for(String k : obj.keySet()) {
 			
 			TreeItem fld = new TreeItem (item, SWT.NONE);
+			fld.setExpanded(true);
 			
 			fld.setText (0, k);
 			
@@ -330,6 +345,7 @@ public class DocumentDlg extends TitleAreaDialog {
 	
 	private void createItem(DBObject obj, TreeItem par) {
 		TreeItem item = new TreeItem (par, SWT.NONE);
+		item.setExpanded(true);
 		par.setData ("obj", obj);
 		item.setData ("obj", obj);
 		
@@ -348,6 +364,7 @@ public class DocumentDlg extends TitleAreaDialog {
 		for(String k : obj.keySet()) {
 			
 			TreeItem fld = new TreeItem (item, SWT.NONE);
+			fld.setExpanded(true);
 			
 			fld.setText (0, k);
 			
@@ -362,6 +379,103 @@ public class DocumentDlg extends TitleAreaDialog {
 				fld.setData ("obj", obj);
 			}
 		}
+	}
+	
+	private boolean canAddItem() {
+		return true;
+	}
+	
+	private void insertItem(TypeItem typeInsert) {
+		HashMap<String, Object> p = new HashMap<String, Object>();
+		
+		NameValueDlg dlg = new NameValueDlg(DocumentDlg.this.getShell());
+		
+		TreeItem itemSelect = null;
+		
+		if(treeUserMode.getItemCount() <= 0) {
+			rootObj = new BasicDBObject();
+			createItem(rootObj, treeUserMode);
+			itemSelect = treeUserMode.getItem(0);
+		} else {			
+			itemSelect = treeUserMode.getSelection()[0];
+		}
+		
+		TypeItem tp = (TypeItem) itemSelect.getData("type");
+		DBObject obj =  (DBObject) itemSelect.getData("obj");
+		
+		boolean inserir = true;
+		
+		if(!tp.equals(TypeItem.document) && !tp.equals(TypeItem.array)) {
+			p.put("name", "");
+			p.put("value", "");			
+			p.put("name-enabled", !tp.equals(TypeItem.array));
+			p.put("value-enabled", (!tp.equals(TypeItem.array) && !tp.equals(TypeItem.document)));
+			
+			dlg.setParams(p);
+			inserir = dlg.open() >= 0;
+		}
+				
+		if(inserir) {
+			
+			if(rootObj == null) {
+				rootObj = new BasicDBObject();
+			}
+			
+			if(treeUserMode.getSelection() == null) {
+				rootObj.put(p.get("name").toString(), new BasicDBList());
+			} else {
+				
+				Object value = null;
+				
+				/*Generate value*/
+				switch(typeInsert) {
+				case array:
+					value = new BasicDBList();
+					break;
+				case root_:
+				case document:
+					value = new BasicDBObject();
+					break;
+				case array_value:
+				case editable:
+					value = p.get("value");
+					break;
+				}			
+				
+				/*Insert value*/
+				switch(tp) {
+				case array: 
+				case document:
+					return;
+				case root_: {
+						if(obj instanceof BasicDBList) {
+							((BasicDBList) obj).add(value);
+						} else {
+							obj.put(p.get("name").toString(), value);
+						}
+					}
+					break;
+				case array_value: {
+						BasicDBList lst = (BasicDBList) obj;
+						int indexAr = Integer.parseInt(itemSelect.getText(0));
+						lst.set(indexAr, value);
+					}
+					break;
+				case editable:
+					obj.put(itemSelect.getText(0), value);
+					break;
+				}				
+				
+			}
+			
+			createItem(rootObj, treeUserMode);
+			
+			TreeItem collapseItem = treeUserMode.getItem(treeUserMode.getItemCount()-1);
+			Event event = new Event();
+	        event.item = collapseItem;
+	        collapseItem.setExpanded(true);
+	        treeUserMode.notifyListeners(SWT.Expand, event);
+		}		
 	}
 	
 	private void disableErrors(boolean t) {

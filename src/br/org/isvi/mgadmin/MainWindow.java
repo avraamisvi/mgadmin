@@ -9,6 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -41,7 +43,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import br.org.isvi.mgadmin.cocoa.CocoaUIEnhancer;
-import br.org.isvi.mgadmin.controllers.MainMenuController;
+import br.org.isvi.mgadmin.controllers.CommandEditorController;
 import br.org.isvi.mgadmin.controllers.MainTreeMenuController;
 import br.org.isvi.mgadmin.controllers.QueryControler;
 import br.org.isvi.mgadmin.controllers.QueryProcessor;
@@ -68,11 +70,11 @@ public class MainWindow {
 	public StyledText stlTxtQueryComposer;
 	private Composite compositeQueryComposer;
 	public Document documentOperations = new Document("");
-	public CommandsToolController commandToolController = new CommandsToolController();
-	public MainMenuController mainMenuController; 
+//	public CommandsToolController commandToolController = new CommandsToolController();
+	public CommandEditorController commandEditorController; 
 	
 	public MainWindow() {
-		mainMenuController = new MainMenuController(this);
+		commandEditorController = new CommandEditorController(this);
 	}
 	
 	/**
@@ -115,12 +117,12 @@ public class MainWindow {
 		}
 		
 		//Filter for main menu
-		display.addFilter(SWT.KeyDown, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				mainMenuController.filterShortCuts(e);
-			}
-		});
+//		display.addFilter(SWT.KeyDown, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				commandEditorController.filterShortCuts(e);
+//			}
+//		});
 		
 		createContents();
 		shell.open();
@@ -399,9 +401,23 @@ public class MainWindow {
 		stlTxtQueryComposer = new StyledText(compositeQueryComposer, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		stlTxtQueryComposer.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				commandToolController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
+				commandEditorController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
 			}
 		});
+		
+		stlTxtQueryComposer.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				commandEditorController.filterShortCuts(e);
+			}
+		});
+		
+		
 		fd_txtUsing.bottom = new FormAttachment(stlTxtQueryComposer, -6);
 		FormData fd_stlTxtQueryComposer = new FormData();
 		fd_stlTxtQueryComposer.right = new FormAttachment(100, -10);

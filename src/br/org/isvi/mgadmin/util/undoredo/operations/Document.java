@@ -23,12 +23,17 @@ public class Document {
 		return text.toString();
 	}
 	
+	public void delete(int start, String text) {
+		manager.execute(new DeleteTextCmd(this, text, start));
+		System.out.println("delete: " + start + " text:" + text);
+	}	
+	
 	public void appendChar(char ch, int caret) {
 		CharItem chi = new CharItem();
 		chi.char_ = ch; 
 		chi.caret = caret; 
 		
-		System.out.println("CH: " + ch + " car:" + caret);
+		System.out.println("appendChar: " + ch + " car:" + caret);
 		
 		if(!charsBuffer.isEmpty()) {
 			
@@ -70,7 +75,7 @@ public class Document {
 	public void redo() {
 		manager.redo();
 	}
-
+	
 	public int getCaret() {
 		return caret;
 	}
