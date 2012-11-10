@@ -70,7 +70,6 @@ public class MainWindow {
 	public StyledText stlTxtQueryComposer;
 	private Composite compositeQueryComposer;
 	public Document documentOperations = new Document("");
-//	public CommandsToolController commandToolController = new CommandsToolController();
 	public CommandEditorController commandEditorController; 
 	
 	public MainWindow() {
@@ -110,7 +109,7 @@ public class MainWindow {
 	 * Open the window.
 	 */
 	public void open() {
-		Display display = Display.getDefault();
+		display = Display.getDefault();
 		
 		if (SWT.getPlatform().equals("cocoa")) {
 			new CocoaUIEnhancer().earlyStartup();
@@ -318,7 +317,7 @@ public class MainWindow {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-				}				
+				}
 			}
 			@Override
 			public void mouseDown(MouseEvent e) {
@@ -339,6 +338,30 @@ public class MainWindow {
 				} 
 			}
 		});
+		
+		treeMain.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(e.character == SWT.CR) {
+					TreeItem item = treeMain.getSelection()[0];
+					if (item != null) {
+						try {
+							systemMainController.openItem(item);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}					
+				}
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+			}
+		});
+		
 		formToolkit.paintBordersFor(treeMain);
 		scrolledComposite.setContent(treeMain);
 		scrolledComposite.setMinSize(treeMain.computeSize(SWT.DEFAULT, SWT.DEFAULT));
