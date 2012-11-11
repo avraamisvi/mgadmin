@@ -1,4 +1,4 @@
-package br.org.isvi.mgadmin.util;
+package br.org.isvi.mgadmin.dlg;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;

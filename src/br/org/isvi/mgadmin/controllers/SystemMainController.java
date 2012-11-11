@@ -21,13 +21,13 @@ import br.org.isvi.mgadmin.NewConnectionDlg;
 import br.org.isvi.mgadmin.NewDatabaseDlg;
 import br.org.isvi.mgadmin.cfg.Configuration;
 import br.org.isvi.mgadmin.cfg.Server;
+import br.org.isvi.mgadmin.model.DocumentVO;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
-import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 public class SystemMainController {
@@ -399,11 +399,11 @@ public class SystemMainController {
 	public void openNewDocumentDlg(TreeItem item, Shell parent) throws Exception{
 		
 		DocumentDlg dlg = new DocumentDlg(parent);
-		HashMap<String, Object> params = new HashMap<String, Object>();
+		DocumentVO params = new DocumentVO();
 		dlg.setParams(params);
 		
 		if(dlg.open() < 1) {
-			DBObject obj = (DBObject) params.get("dbobj");
+			DBObject obj = (DBObject) params.dbobj;
 			this.getDBCollection(item).insert(obj);
 			this.refreshMainTreeInfo();
 		}
@@ -412,16 +412,16 @@ public class SystemMainController {
 	public void openEditDocumentDlg(String ref, TreeItem item, Shell parent) throws Exception{
 		
 		DocumentDlg dlg = new DocumentDlg(parent);
-		HashMap<String, Object> params = new HashMap<String, Object>();
+		DocumentVO params = new DocumentVO();
 		
 		DBObject qry = (DBObject) JSON.parse(ref);
 		
-		params.put("dbobj", JSON.parse(ref));
+		params.dbobj = (DBObject) JSON.parse(ref);
 		
 		dlg.setParams(params);
 		
 		if(dlg.open() < 1) {
-			DBObject obj = (DBObject) params.get("dbobj");
+			DBObject obj = (DBObject) params.dbobj;
 			this.getDBCollection(item).remove(qry);//better approach?
 			this.getDBCollection(item).insert(obj);//better approach?
 		}

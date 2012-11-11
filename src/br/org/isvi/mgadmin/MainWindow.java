@@ -6,9 +6,15 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CaretEvent;
+import org.eclipse.swt.custom.CaretListener;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
+import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -17,6 +23,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -25,9 +32,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -50,7 +55,6 @@ import br.org.isvi.mgadmin.controllers.QueryProcessor;
 import br.org.isvi.mgadmin.controllers.SystemMainController;
 import br.org.isvi.mgadmin.controllers.SystemMainController.TipoItens;
 import br.org.isvi.mgadmin.model.PreparedStatment;
-import br.org.isvi.mgadmin.util.undoredo.operations.CommandsToolController;
 import br.org.isvi.mgadmin.util.undoredo.operations.Document;
 
 public class MainWindow {
@@ -58,7 +62,6 @@ public class MainWindow {
 	protected Shell shell;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
 	private Tree treeMain;
-	public SystemMainController systemMainController;
 	private QueryControler queryControler = new QueryControler();
 	private Text txtUsing;
 	private Tree treeResultado;
@@ -67,10 +70,21 @@ public class MainWindow {
 	private Display display;
 	private StyledText styledTextProperties;
 	private Menu menuMainTree;
-	public StyledText stlTxtQueryComposer;
 	private Composite compositeQueryComposer;
+	private Menu menuBar;
+	
+	public StyledText stlTxtQueryComposer;
+	public SystemMainController systemMainController;
 	public Document documentOperations = new Document("");
-	public CommandEditorController commandEditorController; 
+	public CommandEditorController commandEditorController;
+	
+	private MenuItem mntmEdit;
+	private MenuItem mntmUndo;
+	private MenuItem mntmRedo;
+	private MenuItem mntmCopy;
+	private MenuItem mntmCut;
+	private MenuItem mntmPaste;
+	private MenuItem mntmProperties; 
 	
 	public MainWindow() {
 		commandEditorController = new CommandEditorController(this);
@@ -95,6 +109,7 @@ public class MainWindow {
 		compositeQueryComposer.setEnabled(en);
 	}
 	
+	@Deprecated
 	public void startRealm() {
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
@@ -215,10 +230,10 @@ public class MainWindow {
 		});
 		mntmClose.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmClose.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		Menu menu = new Menu(shell, SWT.BAR);
-		shell.setMenuBar(menu);
+		menuBar = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(menuBar);
 		
-		MenuItem mntmFile = new MenuItem(menu, SWT.CASCADE);
+		MenuItem mntmFile = new MenuItem(menuBar, SWT.CASCADE);
 		mntmFile.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmFile.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Menu menu_1 = new Menu(mntmFile);
@@ -233,37 +248,37 @@ public class MainWindow {
 		});
 		mntmAddServer.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmAddServer.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmEdit = new MenuItem(menu, SWT.CASCADE);
+		mntmEdit = new MenuItem(menuBar, SWT.CASCADE);
 		mntmEdit.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmEdit.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Menu menu_2 = new Menu(mntmEdit);
 		mntmEdit.setMenu(menu_2);
 		
-		MenuItem mntmUndo = new MenuItem(menu_2, SWT.NONE);
+		mntmUndo = new MenuItem(menu_2, SWT.NONE);
 		mntmUndo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmUndo.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmRedo = new MenuItem(menu_2, SWT.NONE);
+		mntmRedo = new MenuItem(menu_2, SWT.NONE);
 		mntmRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmRedo.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem separatorMenuUndoRedo = new MenuItem(menu_2, SWT.SEPARATOR);
 		separatorMenuUndoRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmNewSubmenu.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmCopy = new MenuItem(menu_2, SWT.NONE);
+		mntmCopy = new MenuItem(menu_2, SWT.NONE);
 		mntmCopy.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCopy.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmCut = new MenuItem(menu_2, SWT.NONE);
+		mntmCut = new MenuItem(menu_2, SWT.NONE);
 		mntmCut.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCut.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmPaste = new MenuItem(menu_2, SWT.NONE);
+		mntmPaste = new MenuItem(menu_2, SWT.NONE);
 		mntmPaste.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmPaste.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
 		
 		MenuItem menuItem = new MenuItem(menu_2, SWT.SEPARATOR);
 		menuItem.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.other.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmProperties = new MenuItem(menu_2, SWT.NONE);
+		mntmProperties = new MenuItem(menu_2, SWT.NONE);
 		mntmProperties.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmProperties.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmHelp = new MenuItem(menu, SWT.CASCADE);
+		MenuItem mntmHelp = new MenuItem(menuBar, SWT.CASCADE);
 		mntmHelp.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmHelp.text_1")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Menu menu_3 = new Menu(mntmHelp);
@@ -422,9 +437,30 @@ public class MainWindow {
 		formToolkit.adapt(txtUsing, true, true);
 		
 		stlTxtQueryComposer = new StyledText(compositeQueryComposer, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		stlTxtQueryComposer.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				commandEditorController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
+//		stlTxtQueryComposer.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+////				commandEditorController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
+//			}
+//		});
+		
+//		stlTxtQueryComposer.addCaretListener(new CaretListener() {
+//			
+//			@Override
+//			public void caretMoved(CaretEvent e) {
+//				int x = stlTxtQueryComposer.getSelectionRange().x;
+//				int l = stlTxtQueryComposer.getSelectionRange().y;
+//				
+//				commandEditorController.setSelection(x, x+l);
+//			}
+//		});
+		
+		stlTxtQueryComposer.addExtendedModifyListener(new ExtendedModifyListener() {
+			
+			@Override
+			public void modifyText(ExtendedModifyEvent e) {
+//				System.out.println("e.replacedText: " + e.replacedText);
+//				System.out.println("text: " + stlTxtQueryComposer.getText());
+				commandEditorController.saveState(stlTxtQueryComposer);
 			}
 		});
 		
@@ -440,6 +476,18 @@ public class MainWindow {
 			}
 		});
 		
+		stlTxtQueryComposer.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				enableMenuQueryComposer(false);
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				enableMenuQueryComposer(true);
+			}
+		});
 		
 		fd_txtUsing.bottom = new FormAttachment(stlTxtQueryComposer, -6);
 		FormData fd_stlTxtQueryComposer = new FormData();
@@ -605,7 +653,15 @@ public class MainWindow {
 			}
 		});
 		tltmBtnRefresh.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/Sign-Refresh-icon32.png"));
-
-		
+	}
+	
+	private void enableMenuQueryComposer(boolean en) {
+		mntmEdit.setEnabled(en);      
+		mntmUndo.setEnabled(en);      
+		mntmRedo.setEnabled(en);
+		mntmCopy.setEnabled(en);
+		mntmCut.setEnabled(en);
+		mntmPaste.setEnabled(en);
+//		mntmProperties.setEnabled(en);
 	}
 }

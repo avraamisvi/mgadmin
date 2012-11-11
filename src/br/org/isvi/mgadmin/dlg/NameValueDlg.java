@@ -1,4 +1,4 @@
-package br.org.isvi.mgadmin.util;
+package br.org.isvi.mgadmin.dlg;
 
 import java.util.HashMap;
 
@@ -18,10 +18,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.ModifyEvent;
 
+import br.org.isvi.mgadmin.model.NameValueVO;
+
 public class NameValueDlg extends Dialog {
 	private Text textName;
 	private Text textValue;
-	private HashMap<String, Object> params = new HashMap<String, Object>();
+	private NameValueVO params = new NameValueVO();
 
 	/**
 	 * Create the dialog.
@@ -51,7 +53,7 @@ public class NameValueDlg extends Dialog {
 		textName = new Text(container, SWT.BORDER);
 		textName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
-				params.put("name", textName.getText());
+				params.name = textName.getText();
 			}
 		});
 		textName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -63,7 +65,7 @@ public class NameValueDlg extends Dialog {
 		textValue = new Text(container, SWT.BORDER);
 		textValue.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
-				params.put("value", textValue.getText());
+				params.value = textValue.getText();
 			}
 		});
 		textValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -73,11 +75,11 @@ public class NameValueDlg extends Dialog {
 			@Override
 			public void handleEvent(Event e) {
 				try {
-					String name = params.get("name").toString();
-					String val = params.get("value").toString();
+					String name = params.name;
+					String val = params.value.toString();
 					
-					boolean n = (Boolean) params.get("name-enabled");
-					boolean v = (Boolean) params.get("value-enabled");
+					boolean n = params.nameEnabled;
+					boolean v = params.valueEnabled;
 					
 					textName.setText(name);
 					textName.setEnabled(n);
@@ -114,7 +116,7 @@ public class NameValueDlg extends Dialog {
 		return new Point(450, 177);
 	}
 
-	public void setParams(HashMap<String, Object> params) {
+	public void setParams(NameValueVO params) {
 		this.params = params;
 	}
 }

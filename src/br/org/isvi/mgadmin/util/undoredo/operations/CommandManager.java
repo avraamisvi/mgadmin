@@ -7,7 +7,7 @@ public class CommandManager {
 	Stack<Command> redoStack = new Stack<Command>();
 	boolean canRedo = false;
 	
-	int limiteStack = 100;
+	int limiteStack = 600;
 	
 	public void execute(Command cmd) {
 		
@@ -21,14 +21,16 @@ public class CommandManager {
 	
 	public void undo() {
 		try {
-			Command cmd = undoStack.pop();
-			cmd.undo();
-			
-			verifyLimite(redoStack);
-			
-			redoStack.push(cmd);
-			
-			canRedo = true;
+			if(undoStack.size() > 0) {
+				Command cmd = undoStack.pop();
+				cmd.undo();
+				
+				verifyLimite(redoStack);
+				
+				redoStack.push(cmd);
+				
+				canRedo = true;
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -37,13 +39,14 @@ public class CommandManager {
 	public void redo() {
 		try {
 			if(canRedo) {
-				Command cmd = redoStack.pop();
-				cmd.execute();
-		
-				verifyLimite(undoStack);
-				
-				undoStack.push(cmd);
-				
+				if(redoStack.size() > 0) {
+					Command cmd = redoStack.pop();
+					cmd.execute();
+			
+					verifyLimite(undoStack);
+					
+					undoStack.push(cmd);
+				}
 			}
 		}catch(Exception e) {
 		e.printStackTrace();	

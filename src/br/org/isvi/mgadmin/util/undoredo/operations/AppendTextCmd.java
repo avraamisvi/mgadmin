@@ -8,7 +8,6 @@ public class AppendTextCmd implements Command{
 	Document doc;
 	List<CharItem> charsBuffer = new ArrayList<CharItem>();
 	
-	
 	public AppendTextCmd(Document doc, List<CharItem> charsBuffer) {
 		this.doc = doc;
 		this.charsBuffer = charsBuffer;
@@ -16,10 +15,11 @@ public class AppendTextCmd implements Command{
 	
 	@Override
 	public void execute() {
-		System.out.println("======INSERT======");
-		
+		System.out.println("AppendTextCmd:======INSERT======");
+		int c = 0;
+				
 		for(CharItem chi : charsBuffer) {
-			int c = getStart(chi.caret);
+			c = getStart(chi.caret);
 			doc.text.insert(c, chi.char_);
 		}
 		
@@ -33,13 +33,13 @@ public class AppendTextCmd implements Command{
 	@Override
 	public void undo() {
 
-		System.out.println("======UNDO======");
+		System.out.println("AppendTextCmd:======UNDO======");
 		
 		int cont = 0;
 		for(CharItem chi : charsBuffer) {
 			int c = getStart(chi.caret-cont);
 			doc.text.delete(c, c+1);
-			this.doc.caret = c;
+			this.doc.setCaret(c);
 			cont++;
 			System.out.println("CH: " + chi.char_ + " car:" + c + " cont:" + cont);
 		}
@@ -55,28 +55,4 @@ public class AppendTextCmd implements Command{
 		
 		return pos;
 	}
-	
-//	public String getText() {
-//		StringBuilder bdl = new StringBuilder();
-//		
-//		Collections.sort(charsBuffer, new Comparator<CharItem>() {
-//			@Override
-//			public int compare(CharItem o1, CharItem o2) {
-//				
-//		       if (o1.caret < o2.caret) {
-//		            return -1;
-//		        }
-//		       
-//		        if (o1.caret > o2.caret) {
-//		            return 1;
-//		        }
-//			     
-//		        return 0;
-//			}
-//		});
-//		
-//		for(CharItem chi : charsBuffer) {
-//			bdl.append(chi.c);
-//		}
-//	}
 }

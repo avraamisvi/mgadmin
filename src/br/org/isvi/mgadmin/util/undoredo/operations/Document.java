@@ -7,9 +7,11 @@ import java.util.List;
 
 public class Document {
 
+	public boolean undoRedo = false;
+	private int caret = 0;
+	
 	StringBuilder text;
 	CommandManager manager = new CommandManager();
-	int caret = 0;
 	
 	List<CharItem> charsBuffer = new ArrayList<CharItem>();
 	
@@ -23,17 +25,40 @@ public class Document {
 		return text.toString();
 	}
 	
-	public void delete(int start, String text) {
-		manager.execute(new DeleteTextCmd(this, text, start));
-		System.out.println("delete: " + start + " text:" + text);
+	public void delete(int start, int end) {
+		
+		if(charsBuffer.size() > 0) {
+			manager.execute(new AppendTextCmd(this, charsBuffer));
+			charsBuffer = new ArrayList<CharItem>();
+		}		
+		
+		System.out.println("delete: " + start + " text:" + text.substring(start, end));
+		manager.execute(new DeleteTextCmd(this, text.substring(start, end), start));
+	}
+
+	public void delete(int start) {
+		
+		if(charsBuffer.size() > 0) {
+			manager.execute(new AppendTextCmd(this, charsBuffer));
+			charsBuffer = new ArrayList<CharItem>();
+		}		
+		
+		String char_ = ""+text.charAt(start);
+		
+		manager.execute(new DeleteTextCmd(this, char_, start));
+		System.out.println("delete: " + start + " text:" + char_);
 	}	
 	
 	public void appendChar(char ch, int caret) {
+		
+		if(Character.isSupplementaryCodePoint(ch) || Character.isIdentifierIgnorable(ch) || undoRedo)
+			return;
+		
 		CharItem chi = new CharItem();
 		chi.char_ = ch; 
 		chi.caret = caret; 
 		
-		System.out.println("appendChar: " + ch + " car:" + caret);
+		System.out.println("appendChar: code:" + (int)ch + " car:" + caret + " char:" + ch);
 		
 		if(!charsBuffer.isEmpty()) {
 			
@@ -69,14 +94,26 @@ public class Document {
 	}
 	
 	public void undo() {
-		manager.undo();
+		
+		if(charsBuffer.size() > 0) {
+			manager.execute(new AppendTextCmd(this, charsBuffer));
+			charsBuffer = new ArrayList<CharItem>();
+		}
+		
+		this.undoRedo = true;
+		manager.undo();	
 	}
 	
 	public void redo() {
+		this.undoRedo = true;
 		manager.redo();
 	}
 	
 	public int getCaret() {
 		return caret;
+	}
+	
+	public void setCaret(int c) {
+		caret = c;
 	}
 }

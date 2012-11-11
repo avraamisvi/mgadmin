@@ -10,6 +10,7 @@ public class DeleteTextCmd implements Command{
 	public DeleteTextCmd(Document doc, String text, int start) {
 		this.doc = doc;
 		this.text = text;
+		this.start = start;
 	}
 	
 	@Override
@@ -28,6 +29,7 @@ public class DeleteTextCmd implements Command{
 	public void undo() {
 
 		System.out.println("======UNDO DELETE======");
-		doc.text.insert(start, doc.text);
+		doc.text.insert(start, text);
+		this.doc.setCaret(start+text.length());
 	}
 }

@@ -1,7 +1,5 @@
 package br.org.isvi.mgadmin;
 
-import java.util.HashMap;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -34,8 +32,10 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import br.org.isvi.mgadmin.util.ErrorsDlg;
-import br.org.isvi.mgadmin.util.NameValueDlg;
+import br.org.isvi.mgadmin.dlg.ErrorsDlg;
+import br.org.isvi.mgadmin.dlg.NameValueDlg;
+import br.org.isvi.mgadmin.model.DocumentVO;
+import br.org.isvi.mgadmin.model.NameValueVO;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -43,7 +43,7 @@ import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
 
 public class DocumentDlg extends TitleAreaDialog {
-	private HashMap<String, Object> params;
+	private DocumentVO params;
 	private DBObject rootObj;
 	private StyledText styledTextAdvanced;
 	private Button buttonOk;
@@ -170,7 +170,7 @@ public class DocumentDlg extends TitleAreaDialog {
 					
 					rootObj = (DBObject) JSON.parse(styledTextAdvanced.getText());
 					
-					params.put("dbobj", rootObj);
+					params.dbobj = rootObj;
 					
 					treeUserMode.setItemCount(0);
 					createItem(rootObj, treeUserMode);
@@ -243,8 +243,8 @@ public class DocumentDlg extends TitleAreaDialog {
 		}
 	}
 	
-	public void setParams(HashMap<String, Object> params) {
-		rootObj = (DBObject) params.get("dbobj");
+	public void setParams(DocumentVO params) {
+		rootObj = params.dbobj;
 		
 		this.params = params;
 	}	
@@ -285,7 +285,9 @@ public class DocumentDlg extends TitleAreaDialog {
 			if(itm.getItemCount() > 0) {
 				extandAll(itm);
 			}
-		}		
+		}
+		
+		disableErrors(true);//everything is ok		
 	}
 	
 	private void createItem(DBObject obj, TreeItem par) {
@@ -331,7 +333,7 @@ public class DocumentDlg extends TitleAreaDialog {
 	}
 	
 	private void insertItem(TypeItem typeInsert) {
-		HashMap<String, Object> p = new HashMap<String, Object>();
+		NameValueVO nameValue = new NameValueVO();
 		
 		NameValueDlg dlg = new NameValueDlg(DocumentDlg.this.getShell());
 		
@@ -351,12 +353,14 @@ public class DocumentDlg extends TitleAreaDialog {
 		boolean inserir = true;
 		
 		if(!tp.equals(TypeItem.document) && !tp.equals(TypeItem.array)) {
-			p.put("name", "");
-			p.put("value", "");			
-			p.put("name-enabled", !tp.equals(TypeItem.array));
-			p.put("value-enabled", (!tp.equals(TypeItem.array) && !tp.equals(TypeItem.document)));
+			nameValue = new NameValueVO();
 			
-			dlg.setParams(p);
+			nameValue.name = "";
+			nameValue.value = "";			
+			nameValue.nameEnabled = !tp.equals(TypeItem.array);
+			nameValue.valueEnabled = !tp.equals(TypeItem.array) && !tp.equals(TypeItem.document);
+			
+			dlg.setParams(nameValue);
 			inserir = dlg.open() >= 0;
 		}
 				
@@ -367,7 +371,7 @@ public class DocumentDlg extends TitleAreaDialog {
 			}
 			
 			if(treeUserMode.getSelection() == null) {
-				rootObj.put(p.get("name").toString(), new BasicDBList());
+				rootObj.put(nameValue.name, new BasicDBList());
 			} else {
 				
 				Object value = null;
@@ -383,7 +387,7 @@ public class DocumentDlg extends TitleAreaDialog {
 					break;
 				case array_value:
 				case editable:
-					value = p.get("value");
+					value = nameValue.value;
 					break;
 				}			
 				
@@ -396,7 +400,7 @@ public class DocumentDlg extends TitleAreaDialog {
 						if(obj instanceof BasicDBList) {
 							((BasicDBList) obj).add(value);
 						} else {
-							obj.put(p.get("name").toString(), value);
+							obj.put(nameValue.name, value);
 						}
 					}
 					break;
@@ -429,8 +433,6 @@ public class DocumentDlg extends TitleAreaDialog {
 	}
 	
 	private void deleteSelectedItem () {
-		HashMap<String, Object> p = new HashMap<String, Object>();
-		
 		TreeItem item = treeUserMode.getSelection()[0];
 		TypeItem tp = (TypeItem) item.getData("type");
 		DBObject obj = (DBObject) item.getData("obj");
@@ -462,24 +464,24 @@ public class DocumentDlg extends TitleAreaDialog {
 	
 	private void editSelectedItem() {
 		
-		HashMap<String, Object> p = new HashMap<String, Object>();
+		NameValueVO p = new NameValueVO();
 		
 		TreeItem item = treeUserMode.getSelection()[0];
 		TypeItem tp = (TypeItem) item.getData("type");
 		
 		switch(tp) {
 			case array_value:
-				p.put("name-enabled", Boolean.FALSE);
-				p.put("value-enabled", Boolean.TRUE);
+				p.nameEnabled = Boolean.FALSE;
+				p.valueEnabled = Boolean.TRUE;
 				break;
 			case array:
 			case document:
-				p.put("name-enabled", Boolean.TRUE);
-				p.put("value-enabled", Boolean.FALSE);
+				p.nameEnabled = Boolean.TRUE;
+				p.valueEnabled = Boolean.FALSE;
 				break;
 			case editable:
-				p.put("name-enabled", Boolean.TRUE);
-				p.put("value-enabled", Boolean.TRUE);					
+				p.nameEnabled = Boolean.TRUE;
+				p.valueEnabled = Boolean.TRUE;					
 				break;
 			case root_:
 				return;					
@@ -487,8 +489,8 @@ public class DocumentDlg extends TitleAreaDialog {
 		
 		NameValueDlg dlg = new NameValueDlg(getShell());
 		
-		p.put("name", item.getText(0));
-		p.put("value", item.getText(1));			
+		p.name = item.getText(0);
+		p.value = item.getText(1);			
 		
 		dlg.setParams(p);
 		if(dlg.open() <= 0) {
@@ -498,26 +500,26 @@ public class DocumentDlg extends TitleAreaDialog {
 			
 			switch(tp) {
 				case array_value:
-					obj.put(item.getText(0),  p.get("value")!=null?p.get("value").toString():"null");
+					obj.put(item.getText(0),  p.value !=null?p.value.toString():"null");
 					break;
 				case array:
 				case document: 
 					{
-						if(p.get("name") != null) {
+						if(p.name != null) {
 							pObj.removeField(item.getText(0));
-							pObj.put(p.get("name").toString(),  obj);
+							pObj.put(p.name,  obj);
 						}
 					}
 					break;
 				case editable:
 					{
-						if(p.get("name") != null) {
+						if(p.name != null) {
 							Object v = obj.get(item.getText(0));
 							obj.removeField(item.getText(0));
-							obj.put(p.get("name").toString(),  v);
-							obj.put(p.get("name").toString(),  p.get("value")!=null?p.get("value").toString():"null");
+							obj.put(p.name,  v);
+							obj.put(p.name,  p.value!=null?p.value.toString():"null");
 						} else {
-							obj.put(item.getText(0),  p.get("value")!=null?p.get("value").toString():"null");
+							obj.put(item.getText(0),  p.value!=null?p.value.toString():"null");
 						}
 					}	
 					break;
