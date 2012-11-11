@@ -23,7 +23,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -52,6 +51,8 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.internal.misc.StatusUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
+
+import br.org.isvi.mgadmin.dlg.AboutDlg;
 
 /**
  * The CocoaUIEnhancer provides the standard "About" and "Preference" menu items
@@ -551,8 +552,10 @@ public class CocoaUIEnhancer extends CocoaUtil implements IStartup {
 	}
 
 	private static void showAbout() {
-		MessageDialog.openInformation(null, "About...", "Replace with a proper about text  / dialog");
+//		MessageDialog.openInformation(null, "About...", "Replace with a proper about text  / dialog");
 		// delegate.runCommand(ActionFactory.ABOUT.getCommandId());
+		Shell shell = Display.getDefault().getActiveShell();
+		new AboutDlg(shell).open();
 	}
 
 	private static void showPreferences() {

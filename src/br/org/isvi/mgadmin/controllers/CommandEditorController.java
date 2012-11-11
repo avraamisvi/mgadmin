@@ -6,7 +6,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
 
 import br.org.isvi.mgadmin.MainWindow;
-import br.org.isvi.mgadmin.util.SystemUtils;
 
 public class CommandEditorController {
 
@@ -48,12 +47,12 @@ public class CommandEditorController {
 	
 	public void filterShortCuts(KeyEvent e) {
 		
-		if(SystemUtils.isRedoKey(e)) {
+		/*if(SystemUtils.isRedoKey(e)) {
 			redo();
 		} 
 		else if(SystemUtils.isUndoKey(e)) {
 			undo();
-		}		
+		}*/		
 	}
 	
 	private void verifyLimite(Stack<State> st) {

@@ -6,8 +6,6 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CaretEvent;
-import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.SashForm;
@@ -17,8 +15,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,7 +51,6 @@ import br.org.isvi.mgadmin.controllers.QueryProcessor;
 import br.org.isvi.mgadmin.controllers.SystemMainController;
 import br.org.isvi.mgadmin.controllers.SystemMainController.TipoItens;
 import br.org.isvi.mgadmin.model.PreparedStatment;
-import br.org.isvi.mgadmin.util.undoredo.operations.Document;
 
 public class MainWindow {
 
@@ -75,7 +70,6 @@ public class MainWindow {
 	
 	public StyledText stlTxtQueryComposer;
 	public SystemMainController systemMainController;
-	public Document documentOperations = new Document("");
 	public CommandEditorController commandEditorController;
 	
 	private MenuItem mntmEdit;
@@ -256,22 +250,89 @@ public class MainWindow {
 		
 		mntmUndo = new MenuItem(menu_2, SWT.NONE);
 		mntmUndo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmUndo.text")); //$NON-NLS-1$ //$NON-NLS-2$
-		
+		mntmUndo.setAccelerator(SWT.MOD1+'Z');
+		mntmUndo.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				commandEditorController.undo();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 		mntmRedo = new MenuItem(menu_2, SWT.NONE);
 		mntmRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmRedo.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		if(SWT.getPlatform().equalsIgnoreCase("cocoa")) {
+			mntmRedo.setAccelerator(SWT.MOD1+SWT.SHIFT+'Z');
+		} else {
+			mntmRedo.setAccelerator(SWT.MOD1+'Y');
+		}
+		
+		mntmRedo.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				commandEditorController.redo();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		
 		MenuItem separatorMenuUndoRedo = new MenuItem(menu_2, SWT.SEPARATOR);
 		separatorMenuUndoRedo.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmNewSubmenu.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		mntmCopy = new MenuItem(menu_2, SWT.NONE);
 		mntmCopy.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCopy.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		mntmCopy.setAccelerator(SWT.MOD1+'C');
+		mntmCopy.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				stlTxtQueryComposer.copy();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
 		
 		mntmCut = new MenuItem(menu_2, SWT.NONE);
 		mntmCut.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCut.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
-		
+		mntmCut.setAccelerator(SWT.MOD1+'X');
+		mntmCut.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				stlTxtQueryComposer.cut();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 		mntmPaste = new MenuItem(menu_2, SWT.NONE);
 		mntmPaste.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmPaste.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
-		
+		mntmPaste.setAccelerator(SWT.MOD1+'P');
+		mntmPaste.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				stlTxtQueryComposer.paste();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+
 		MenuItem menuItem = new MenuItem(menu_2, SWT.SEPARATOR);
 		menuItem.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.other.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
@@ -436,30 +497,11 @@ public class MainWindow {
 		txtUsing.setLayoutData(fd_txtUsing);
 		formToolkit.adapt(txtUsing, true, true);
 		
-		stlTxtQueryComposer = new StyledText(compositeQueryComposer, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-//		stlTxtQueryComposer.addModifyListener(new ModifyListener() {
-//			public void modifyText(ModifyEvent e) {
-////				commandEditorController.textModified(documentOperations, stlTxtQueryComposer.getText(), stlTxtQueryComposer.getCaretOffset());
-//			}
-//		});
-		
-//		stlTxtQueryComposer.addCaretListener(new CaretListener() {
-//			
-//			@Override
-//			public void caretMoved(CaretEvent e) {
-//				int x = stlTxtQueryComposer.getSelectionRange().x;
-//				int l = stlTxtQueryComposer.getSelectionRange().y;
-//				
-//				commandEditorController.setSelection(x, x+l);
-//			}
-//		});
-		
+		stlTxtQueryComposer = new StyledText(compositeQueryComposer, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);		
 		stlTxtQueryComposer.addExtendedModifyListener(new ExtendedModifyListener() {
 			
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
-//				System.out.println("e.replacedText: " + e.replacedText);
-//				System.out.println("text: " + stlTxtQueryComposer.getText());
 				commandEditorController.saveState(stlTxtQueryComposer);
 			}
 		});
