@@ -55,6 +55,10 @@ public class CommandEditorController {
 		}*/		
 	}
 	
+	private void applyStyle() {
+		
+	}
+	
 	private void verifyLimite(Stack<State> st) {
 		if(st.size() >= limiteStack) {
 			st.pop();

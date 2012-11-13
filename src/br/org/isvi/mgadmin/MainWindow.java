@@ -99,6 +99,17 @@ public class MainWindow {
 		}
 	}
 
+	public static void start() {
+		try {
+			Display.setAppName("MgAdmin");
+			Display.getDefault();
+			MainWindow window = new MainWindow();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+	}
+	
 	public void setSearchEnabled(boolean en) {
 		compositeQueryComposer.setEnabled(en);
 	}

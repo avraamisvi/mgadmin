@@ -12,19 +12,38 @@
  *******************************************************************************/
 package br.org.isvi.mgadmin.cocoa;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ColorFieldEditor;
+import org.eclipse.jface.preference.DirectoryFieldEditor;
+import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FileFieldEditor;
+import org.eclipse.jface.preference.FontFieldEditor;
+import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.PathEditor;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.preference.PreferenceManager;
+import org.eclipse.jface.preference.PreferenceNode;
+import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.ScaleFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -53,6 +72,8 @@ import org.eclipse.ui.internal.misc.StatusUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import br.org.isvi.mgadmin.dlg.AboutDlg;
+import br.org.isvi.mgadmin.dlg.PropertiesDlg;
+import br.org.isvi.mgadmin.model.PropertiesVO;
 
 /**
  * The CocoaUIEnhancer provides the standard "About" and "Preference" menu items
@@ -560,10 +581,142 @@ public class CocoaUIEnhancer extends CocoaUtil implements IStartup {
 
 	private static void showPreferences() {
 		System.out.println("Preferences...");
-		PreferenceManager manager = new PreferenceManager();
-		PreferenceDialog dialog = new PreferenceDialog(null, manager);
-		dialog.open();
+//		PreferenceManager manager = new PreferenceManager();
+//		PreferenceStore store = new PreferenceStore();
+//		
+//		//reconnect to opened connections of the previous session
+//		//inform of updates
+//		//
+//		
+//	    // Create the nodes
+//	    PreferenceNode one = new PreferenceNode("one", "One", null,
+//	        FieldEditorPageOne.class.getName());
+//	    PreferenceNode two = new PreferenceNode("two", "Two", null,
+//	        FieldEditorPageTwo.class.getName());
+//
+//	    // Add the nodes
+//	    manager.addToRoot(one);
+//	    manager.addToRoot(two);		
+//	    PreferenceDialog dialog = new PreferenceDialog(null, manager);
+//		
+//		try {
+//			File file = new File("mgadmin.properties");
+//			
+//			if(file.exists()) {
+//				store.load(new FileInputStream("mgadmin.properties"));
+//				dialog.setPreferenceStore(store);
+//				store.save();
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		dialog.open();
 		// delegate.runCommand(ActionFactory.PREFERENCES.getCommandId());
+		
+		try {
+			Properties prps = new Properties();
+			
+			try {
+				prps.load(new FileInputStream("mgadmin.properties"));
+			} catch (Exception e) {
+			}
+		
+			PropertiesDlg dlg = new PropertiesDlg(Display.getCurrent().getActiveShell());
+			PropertiesVO prop = new PropertiesVO();		
+			dlg.setProperties(prop);
+			
+			if(dlg.open() <= 0) {
+					prps.store(new FileOutputStream("mgadmin.properties"), null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
+	/**
+	 * This class demonstrates field editors
+	 */
+
+	public class FieldEditorPageOne extends FieldEditorPreferencePage {
+	  public FieldEditorPageOne() {
+	    // Use the "flat" layout
+	    super(FLAT);
+	  }
+
+	  /**
+	   * Creates the field editors
+	   */
+	  protected void createFieldEditors() {
+	    // Add a boolean field
+	    BooleanFieldEditor bfe = new BooleanFieldEditor("myBoolean", "Boolean",
+	        getFieldEditorParent());
+	    addField(bfe);
+
+	    // Add a color field
+	    ColorFieldEditor cfe = new ColorFieldEditor("myColor", "Color:",
+	        getFieldEditorParent());
+	    addField(cfe);
+
+	    // Add a directory field
+	    DirectoryFieldEditor dfe = new DirectoryFieldEditor("myDirectory",
+	        "Directory:", getFieldEditorParent());
+	    addField(dfe);
+
+	    // Add a file field
+	    FileFieldEditor ffe = new FileFieldEditor("myFile", "File:",
+	        getFieldEditorParent());
+	    addField(ffe);
+
+	    // Add a font field
+	    FontFieldEditor fontFe = new FontFieldEditor("myFont", "Font:",
+	        getFieldEditorParent());
+	    addField(fontFe);
+
+	    // Add a radio group field
+	    RadioGroupFieldEditor rfe = new RadioGroupFieldEditor("myRadioGroup",
+	        "Radio Group", 2, new String[][] { { "First Value", "first" },
+	            { "Second Value", "second" },
+	            { "Third Value", "third" },
+	            { "Fourth Value", "fourth" } }, getFieldEditorParent(),
+	        true);
+	    addField(rfe);
+
+	    // Add a path field
+	    PathEditor pe = new PathEditor("myPath", "Path:", "Choose a Path",
+	        getFieldEditorParent());
+	    addField(pe);
+	  }
+	}	
+	
+	/**
+	 * This class demonstrates field editors
+	 */
+
+	public class FieldEditorPageTwo extends FieldEditorPreferencePage {
+	  public FieldEditorPageTwo() {
+	    // Use the "grid" layout
+	    super(GRID);
+	  }
+
+	  /**
+	   * Creates the field editors
+	   */
+	  protected void createFieldEditors() {
+	    // Add an integer field
+	    IntegerFieldEditor ife = new IntegerFieldEditor("myInt", "Int:",
+	        getFieldEditorParent());
+	    addField(ife);
+
+	    // Add a scale field
+	    ScaleFieldEditor sfe = new ScaleFieldEditor("myScale", "Scale:",
+	        getFieldEditorParent(), 0, 100, 1, 10);
+	    addField(sfe);
+
+	    // Add a string field
+	    StringFieldEditor stringFe = new StringFieldEditor("myString",
+	        "String:", getFieldEditorParent());
+	    addField(stringFe);
+	  }
+	}	
 }
