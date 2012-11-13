@@ -158,6 +158,20 @@ a.button span {
 #download-tar-gz span {
   background: transparent url(../images/tar-gz-icon.png) 12px 50% no-repeat;
 }
+
+#download-windows span {
+  background: transparent url(../images/windows-icon.png) 12px 50% no-repeat;
+  background-size:31px 23px;
+}
+#download-linux span {
+  background: transparent url(../images/linux-icon.png) 12px 50% no-repeat;
+  background-size:31px 23px;
+}
+#download-osx span {
+  background: transparent url(../images/x-au-pink-icon.png) 12px 50% no-repeat;
+  background-size:31px 23px;
+}
+
 #view-on-github span {
   background: transparent url(../images/octocat-icon.png) 12px 50% no-repeat;
 }
@@ -355,6 +369,9 @@ footer a:hover {
   #downloads {
     margin-bottom: 25px;
   }
+  #downloads-pkg {
+    margin-bottom: 25px;
+  }  
   #download-zip, #download-tar-gz {
     display: none;
   }
