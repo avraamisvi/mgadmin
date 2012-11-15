@@ -10,6 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -153,7 +154,7 @@ public class SystemMainController {
 		this.refreshMainTree();
 	}
 	
-	public void openServer(TreeItem item) throws UnknownHostException {
+	public void openServer(TreeItem item) throws Exception {
 		
 		String host = item.getData(CONNECTION).toString();
 		int port = (Integer) item.getData(PORT);
@@ -161,9 +162,25 @@ public class SystemMainController {
 		if(!servers.containsKey(host)) {
 			Mongo server = new Mongo(host, port);
 			servers.put(item, server);
-			
-			List<String> itens = server.getDatabaseNames();
-			this.createDatabaseItem(item, server, itens);
+			try {
+				
+				for(Server serv : cfg.getServers()) {
+					if(item.getText().equals(serv.getName())) {
+						if(serv.getUsername() != null && !serv.getUsername().isEmpty()) {
+							server.getDB("admin").authenticate(serv.getUsername(), serv.getPassword().toCharArray());
+						}
+						break;
+					}
+				}
+				
+				List<String> itens = server.getDatabaseNames();
+				this.createDatabaseItem(item, server, itens);
+			} catch (Exception err) {
+				if(err.getMessage().contains("need to login")) {
+					MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", 
+							"Authentication error!");
+				}
+			}
 		}
 		
 		mainWindow.setSearchEnabled(!servers.isEmpty());
@@ -189,7 +206,7 @@ public class SystemMainController {
 		}
 	}
 	
-	public void openItem(TreeItem item) throws UnknownHostException {
+	public void openItem(TreeItem item) throws Exception {
 
 		if(item.getData(TIPO) == null)
 			return;
@@ -199,15 +216,22 @@ public class SystemMainController {
 		} else if(item.getData(TIPO).equals(TipoItens.collections)) {
 			openDatabase(item);
 		} else if(item.getData(TIPO).equals(TipoItens.collection)) {
-			if(using != null) {
-				using.setForeground(oldColor);
+		
+			String name = item.getData(NOME).toString();
+			
+			if(!name.equals("system.indexes") && !name.equals("system.users")) {
+				if(using != null) {
+					using.setForeground(oldColor);
+				}
+				
+				using = item;
+				oldColor = using.getForeground();
+				using.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_RED));
+				
+				mainWindow.setUsingText(using.getData(NOME).toString());
+			} else if(name.equals("system.users")){
+				this.openUsersDlg();
 			}
-			
-			using = item;
-			oldColor = using.getForeground();
-			using.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_RED));
-			
-			mainWindow.setUsingText(using.getData(NOME).toString());
 		}
 	}
 	
@@ -251,8 +275,16 @@ public class SystemMainController {
 		it.setData(COUNT, ""+db.getCollectionNames().size());
 		it.setData(PREFS, db.getReadPreference().toDBObject());
 		
-		Image xImage = new Image(parent.getDisplay(), 
-				ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/collections.png"));
+		Image xImage = null;
+		
+		if(dbname.equals("admin")) {
+			xImage = new Image(parent.getDisplay(), 
+					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/admin.png"));			
+		} else { 
+			xImage = new Image(parent.getDisplay(), 
+					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/collections.png"));
+		}
+		
 		it.setImage(xImage);
 	}
 	
@@ -262,17 +294,41 @@ public class SystemMainController {
 			it.setData(TIPO, TipoItens.collection);
 			it.setData(NOME, name);
 			
-			DBCollection col = db.getCollection(name);			
-			it.setText (name + " (" + col.count() + ")");
+			DBCollection col = db.getCollection(name);	
 			
-			it.setData(COUNT, ""+col.count());
+			long count = -1;
+			
+			try {
+				count = col.count();
+			} catch (Exception e) {
+			}
+			
+			
+			if(count >= 0) {
+				it.setText (name + " (" + count + ")");			
+				it.setData(COUNT, ""+col.count());
+			} else {
+				it.setText (name);			
+				it.setData(COUNT, "-1");
+			}
 			
 			it.setData(PREFS, col.getReadPreference().toDBObject());
 //			it.setData(STATS, col.getStats());
 			it.setData(CAPPED, col.isCapped());			
 			
-			Image xImage = new Image(item.getDisplay(), 
+			Image xImage = null;
+			
+			if(name.equals("system.users")) {
+				xImage = new Image(item.getDisplay(), 
+						ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/users.png"));
+			} else if(name.equals("system.indexes")) {
+				xImage = new Image(item.getDisplay(), 
+						ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/index.png"));
+			} else {
+				xImage = new Image(item.getDisplay(), 
 					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/collection.png"));
+			}
+			
 			it.setImage(xImage);
 	}	
 	
@@ -563,5 +619,13 @@ public class SystemMainController {
 		item.setItemCount(0);
 		Mongo s = servers.remove(item);
 		s.close();
+	}
+
+	public void openUsersDlg() {
+		
+	}	
+	
+	public void openNewUserDlg(TreeItem item, Shell shell) {
+		
 	}	
 }

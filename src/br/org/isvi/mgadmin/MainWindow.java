@@ -167,7 +167,50 @@ public class MainWindow {
 		});
 		mntmOpen.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmOpen.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		MenuItem mntmAdd = new MenuItem(menuMainTree, SWT.NONE);
+		MenuItem mntmCascadeAdd = new MenuItem(menuMainTree, SWT.CASCADE);
+		mntmCascadeAdd.setText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.mntmCascadeAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-2$
+		
+		Menu menu_cascade_add = new Menu(mntmCascadeAdd);
+		mntmCascadeAdd.setMenu(menu_cascade_add);		
+		
+		MenuItem mntmAddAuth = new MenuItem(menu_cascade_add, SWT.NONE);
+		mntmAddAuth.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+//				TreeItem item = (TreeItem) treeMain.getData("item_selected");
+//				if(item == null) {
+//					systemMainController.openNewConnectionDlg(shell);
+//				} else if(item.getData("tipo").equals(TipoItens.server)) {
+//					try {
+//						systemMainController.openNewDatabaseDlg(item, shell);
+//					} catch (Exception e1) {
+//						e1.printStackTrace();
+//					}
+//				} else if(item.getData("tipo").equals(TipoItens.collections)) {
+//					try {
+//						systemMainController.openNewCollectionDlg(item, shell);
+//					} catch (Exception e1) {
+//						e1.printStackTrace();
+//					}					
+//				}  else if(item.getData("tipo").equals(TipoItens.collection)) {
+//					try {
+//						String name = item.getData("nome").toString();
+//						
+//						if(!name.equals("system.indexes") && !name.equals("system.users")) {
+//							systemMainController.openNewDocumentDlg(item, shell);
+//						} else if(name.equals("system.users")) {
+//							systemMainController.openNewUserDlg(item, shell);
+//						}
+//					} catch (Exception e1) {
+//						e1.printStackTrace();
+//					}					
+//				}
+			}
+		});
+		mntmAddAuth.setText("Enable Auth");		
+		
+		
+		MenuItem mntmAdd = new MenuItem(menu_cascade_add, SWT.NONE);
 		mntmAdd.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -188,7 +231,13 @@ public class MainWindow {
 					}					
 				}  else if(item.getData("tipo").equals(TipoItens.collection)) {
 					try {
-						systemMainController.openNewDocumentDlg(item, shell);
+						String name = item.getData("nome").toString();
+						
+						if(!name.equals("system.indexes") && !name.equals("system.users")) {
+							systemMainController.openNewDocumentDlg(item, shell);
+						} else if(name.equals("system.users")) {
+							systemMainController.openNewUserDlg(item, shell);
+						}
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}					
