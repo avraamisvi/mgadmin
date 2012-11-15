@@ -80,6 +80,9 @@ public class MainWindow {
 	private MenuItem mntmPaste;
 	private MenuItem mntmProperties; 
 	
+	private ToolItem tltmBtnEditProperties;
+	private ToolItem tltmBtnExcludeItem;
+	
 	public MainWindow() {
 		commandEditorController = new CommandEditorController(this);
 	}
@@ -208,7 +211,6 @@ public class MainWindow {
 			}
 		});
 		mntmAddAuth.setText("Enable Auth");		
-		
 		
 		MenuItem mntmAdd = new MenuItem(menu_cascade_add, SWT.NONE);
 		mntmAdd.addSelectionListener(new SelectionAdapter() {
@@ -498,6 +500,67 @@ public class MainWindow {
 			}
 		});
 		
+		treeMain.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				tltmBtnEditProperties.setEnabled(false);
+				tltmBtnExcludeItem.setEnabled(false);
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				
+			}
+		});
+		
+		treeMain.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent ev) {
+				TreeItem item = (TreeItem) treeMain.getData("item_selected");
+				if(item == null) {
+					tltmBtnEditProperties.setEnabled(false);
+					tltmBtnExcludeItem.setEnabled(false);
+				} else if(item.getData("tipo").equals(TipoItens.server)) {
+					tltmBtnEditProperties.setEnabled(true);
+					tltmBtnExcludeItem.setEnabled(true);
+				} else if(item.getData("tipo").equals(TipoItens.collections)) {
+					
+					String name = item.getData("nome").toString();
+					
+					if(!name.equalsIgnoreCase("admin")) {
+						tltmBtnEditProperties.setEnabled(true);
+						tltmBtnExcludeItem.setEnabled(true);
+					} else {
+						tltmBtnEditProperties.setEnabled(true);
+						tltmBtnExcludeItem.setEnabled(false);
+					}
+					
+				} else if(item.getData("tipo").equals(TipoItens.collection)) {
+
+					tltmBtnEditProperties.setEnabled(true);
+					tltmBtnExcludeItem.setEnabled(true);
+					
+					String name = item.getData("nome").toString();
+					
+					if(!name.equals("system.indexes") && !name.equals("system.users")) {
+						tltmBtnEditProperties.setEnabled(true);
+						tltmBtnExcludeItem.setEnabled(true);
+					} else {
+						tltmBtnEditProperties.setEnabled(true);
+						tltmBtnExcludeItem.setEnabled(false);
+					}
+				}				
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent ev) {
+				
+			}
+		});
+		
+		
 		formToolkit.paintBordersFor(treeMain);
 		scrolledComposite.setContent(treeMain);
 		scrolledComposite.setMinSize(treeMain.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -732,8 +795,8 @@ public class MainWindow {
 		fd_toolBar.top = new FormAttachment(0);
 		fd_toolBar.right = new FormAttachment(100);
 		toolBar.setLayoutData(fd_toolBar);
-		formToolkit.adapt(toolBar);
-		formToolkit.paintBordersFor(toolBar);
+//		formToolkit.adapt(toolBar);//removi por causa da cor FIXME
+//		formToolkit.paintBordersFor(toolBar);//removi por causa da cor FIXME
 		
 		ToolItem tltmBtnconnect = new ToolItem(toolBar, SWT.NONE);
 		tltmBtnconnect.setToolTipText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tltmBtnconnect.toolTipText")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -755,6 +818,42 @@ public class MainWindow {
 			}
 		});
 		tltmBtnRefresh.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/Sign-Refresh-icon32.png"));
+		
+		tltmBtnEditProperties = new ToolItem(toolBar, SWT.NONE);
+		tltmBtnEditProperties.setToolTipText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tltmBtnEditProperties.toolTipText")); //$NON-NLS-1$ //$NON-NLS-2$
+		tltmBtnEditProperties.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+			}
+		});
+		tltmBtnEditProperties.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/edit_icon_32.png"));		
+		tltmBtnEditProperties.setEnabled(false);
+		
+		tltmBtnExcludeItem = new ToolItem(toolBar, SWT.NONE);
+		tltmBtnExcludeItem.setToolTipText(ResourceBundle.getBundle("br.org.isvi.mgadmin.message.mainwindow").getString("MainWindow.tltmBtnExcludeItem.toolTipText")); //$NON-NLS-1$ //$NON-NLS-2$
+		tltmBtnExcludeItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TreeItem item = (TreeItem) treeMain.getData("item_selected");
+				if(item == null) {
+					
+				} else if(item.getData("tipo").equals(TipoItens.server)) {
+					systemMainController.removeConnectionItem(item, shell);
+				} else if(item.getData("tipo").equals(TipoItens.collections)) {
+					
+					String name = item.getData("nome").toString();
+					
+					if(!name.equalsIgnoreCase("admin")) {
+						systemMainController.removeDatabaseItem(item, shell);
+					}
+				} else if(item.getData("tipo").equals(TipoItens.collection)) {
+					systemMainController.removeCollectionItem(item, shell);
+				}				
+			}
+		});
+		tltmBtnExcludeItem.setImage(SWTResourceManager.getImage(MainWindow.class, "/br/org/isvi/mgadmin/images/recycle_bin_32.png"));
+		tltmBtnExcludeItem.setEnabled(false);
 	}
 	
 	private void enableMenuQueryComposer(boolean en) {
