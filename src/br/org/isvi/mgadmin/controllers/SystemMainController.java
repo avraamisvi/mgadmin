@@ -601,6 +601,16 @@ public class SystemMainController {
 		}
 	}
 
+	public void removeDatabaseItem(TreeItem item, Shell shell) {
+		if(MessageDialog.openConfirm(shell, "Remove Item", "Are you sure you want to remove this item? ( cannot be undone )")) {
+			Mongo server = servers.get(item.getParentItem());
+			DB db = server.getDB(item.getData(NOME).toString());
+			db.dropDatabase();
+			item.dispose();
+			this.refreshMainTreeInfo();
+		}
+	}	
+	
 	public void removeConnectionItem(TreeItem item, Shell shell) {
 		if(MessageDialog.openConfirm(shell, "Remove Item", "Are you sure you want to remove this item? ( cannot be undone )")) {
 			this.cfg.removeServer(item.getText());
@@ -626,6 +636,10 @@ public class SystemMainController {
 	}	
 	
 	public void openNewUserDlg(TreeItem item, Shell shell) {
+		
+	}
+	
+	public void openIndexesDlg(TreeItem item, Shell shell) {
 		
 	}	
 }

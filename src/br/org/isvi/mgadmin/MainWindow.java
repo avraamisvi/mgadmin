@@ -258,7 +258,7 @@ public class MainWindow {
 				} else if(item.getData("tipo").equals(TipoItens.server)) {
 					systemMainController.removeConnectionItem(item, shell);
 				} else if(item.getData("tipo").equals(TipoItens.collections)) {
-									
+					systemMainController.removeDatabaseItem(item, shell);				
 				} else if(item.getData("tipo").equals(TipoItens.collection)) {
 					systemMainController.removeCollectionItem(item, shell);
 				}	
