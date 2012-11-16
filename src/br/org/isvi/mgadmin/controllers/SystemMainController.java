@@ -27,6 +27,7 @@ import br.org.isvi.mgadmin.model.DocumentVO;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.mongodb.util.JSON;
@@ -56,7 +57,7 @@ public class SystemMainController {
 	private Configuration cfg;
 	
 	public enum TipoItens {
-		server, collections, collection 
+		server, collections, collection, index, user
 	};
 	
 	public SystemMainController(MainWindow mainWindow) {
@@ -230,11 +231,63 @@ public class SystemMainController {
 				
 				mainWindow.setUsingText(using.getData(NOME).toString());
 			} else if(name.equals("system.users")){
-				this.openUsersDlg();
+				//this.openUsersDlg();
+				openUsers(item);
 			}
 		}
 	}
 	
+	private void openUsers(TreeItem item) {
+		String colls = item.getParentItem().getData(NOME).toString();
+		Boolean aberto = (Boolean) item.getData(ABERTO);
+		
+		if(!aberto) {
+			aberto = true;
+			
+			item.setData(ABERTO, aberto);
+			
+			Mongo server = servers.get(item.getParentItem().getParentItem());
+			
+			DB db = server.getDB(colls);
+			DBCollection col = db.getCollection("system.users");
+			
+			createUserItem(item, col);
+		}
+	}
+
+	private void createUserItem(TreeItem item, DBCollection col) {
+		
+		DBCursor cur = col.find();
+		
+		while(cur.hasNext()) {
+			
+			DBObject o = cur.next();
+			
+			TreeItem it = new TreeItem (item, SWT.NONE);
+			it.setData(TIPO, TipoItens.user);
+			it.setData(NOME, o.get("user"));
+			
+			Boolean readOnly = (Boolean) o.get("readOnly");
+			
+			it.setText(o.get("user").toString());		
+			it.setData("id", o.get("_id"));
+			it.setData("readOnly", readOnly);
+			it.setData("Password", o.get("pwd"));			
+			
+			Image xImage = null;
+			
+			if(readOnly) {
+				xImage = new Image(item.getDisplay(), 
+						ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/user_icon_24.png"));
+			} else {
+				xImage = new Image(item.getDisplay(), 
+					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/admin_icon_24.png"));
+			}
+			
+			it.setImage(xImage);
+		}
+	}
+
 	public void unSetUsing(TreeItem item) {
 		
 		if(item != using)
@@ -293,6 +346,7 @@ public class SystemMainController {
 			TreeItem it = new TreeItem (item, SWT.NONE);
 			it.setData(TIPO, TipoItens.collection);
 			it.setData(NOME, name);
+			it.setData(ABERTO, false);
 			
 			DBCollection col = db.getCollection(name);	
 			
