@@ -47,7 +47,7 @@ remove {age:31}
 Advanced:
 =========
 
-To change a collection in time of execution, you only need to do like above:
+To change a collection in time of execution, you only need to do like below:
 
 USING <connection name>.<database name>.<collection name>
 <other commands>
