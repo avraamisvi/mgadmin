@@ -83,8 +83,8 @@ public class CommandEditorController {
 					cnt += st.dif;
 				}
 				
-				mainWindow.stlTxtQueryComposer.setText(st.text);
-				mainWindow.stlTxtQueryComposer.setCaretOffset(st.caret);
+//				mainWindow.stlTxtQueryComposer.setText(st.text);
+//				mainWindow.stlTxtQueryComposer.setCaretOffset(st.caret);
 
 			}
 		} catch(Exception e) {
@@ -108,8 +108,8 @@ public class CommandEditorController {
 						cnt += st.dif;
 					}					
 					
-					mainWindow.stlTxtQueryComposer.setText(st.text);
-					mainWindow.stlTxtQueryComposer.setCaretOffset(st.caret);					
+//					mainWindow.stlTxtQueryComposer.setText(st.text);
+//					mainWindow.stlTxtQueryComposer.setCaretOffset(st.caret);					
 				}
 		}catch(Exception e) {
 		e.printStackTrace();	
