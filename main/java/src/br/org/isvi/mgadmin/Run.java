@@ -19,7 +19,7 @@ public class Run {
 			p.waitFor();
 			System.out.println("Started");
 		} else {
-			MainWindow.start();
+			RemoteGui.start();
 		}
 	}
 }

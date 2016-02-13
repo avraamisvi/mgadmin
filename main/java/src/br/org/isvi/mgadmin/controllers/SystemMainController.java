@@ -5,23 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-
-import br.org.isvi.mgadmin.DocumentDlg;
-import br.org.isvi.mgadmin.MainWindow;
-import br.org.isvi.mgadmin.NewCollectionDlg;
-import br.org.isvi.mgadmin.NewConnectionDlg;
-import br.org.isvi.mgadmin.NewDatabaseDlg;
+import br.org.isvi.mgadmin.RemoteGui;
 import br.org.isvi.mgadmin.cfg.Configuration;
 import br.org.isvi.mgadmin.cfg.Server;
+import br.org.isvi.mgadmin.data.structure.Tree;
+import br.org.isvi.mgadmin.data.structure.TreeItem;
 import br.org.isvi.mgadmin.model.DocumentVO;
 
 import com.mongodb.BasicDBObject;
@@ -52,15 +40,15 @@ public class SystemMainController {
 	private HashMap<TreeItem, Mongo> servers = new HashMap<TreeItem, Mongo>();
 	private Tree mainTree; 
 	private TreeItem using = null;
-	private Color oldColor = null;
-	private MainWindow mainWindow;
+//	private Color oldColor = null;
+	private RemoteGui mainWindow;
 	private Configuration cfg;
 	
 	public enum TipoItens {
 		server, collections, collection, index, user
 	};
 	
-	public SystemMainController(MainWindow mainWindow) {
+	public SystemMainController(RemoteGui mainWindow) {
 		this.mainWindow = mainWindow;
 		this.cfg = new Configuration();
 		this.cfg.open();
@@ -87,7 +75,7 @@ public class SystemMainController {
 				}
 //			}
 			
-			TreeItem item = new TreeItem (mainTree, SWT.NONE);
+			TreeItem item = new TreeItem (mainTree);
 			item.setText (s.getName());
 			item.setData(TIPO, TipoItens.server);
 			item.setData(CONNECTION, s.getHost());
@@ -95,9 +83,9 @@ public class SystemMainController {
 			item.setData(USERNAME, s.getUsername());
 			item.setData(PASSWORD, s.getPassword());
 			
-			Image xImage = new Image(item.getDisplay(), 
-					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/server.png"));
-			item.setImage(xImage);				
+//			Image xImage = new Image(item.getDisplay(), 
+//					ClassLoader.getSystemResourceAsStream("br/org/isvi/mgadmin/images/server.png"));
+//			item.setImage(xImage);				
 		}		
 	}
 	
@@ -127,7 +115,7 @@ public class SystemMainController {
 			it.setText (it.getData(NOME).toString()  + " (" + db.getCollectionNames().size() + ")");			
 			
 			it.setData(COUNT, ""+db.getCollectionNames().size());
-			it.setData(PREFS, db.getReadPreference().toDBObject());
+			it.setData(PREFS, db.getReadPreference().toDocument());
 			
 			refreshDataBaseItens(it, db);
 		}
@@ -145,7 +133,7 @@ public class SystemMainController {
 			
 			it.setData(COUNT, ""+col.count());
 			
-			it.setData(PREFS, col.getReadPreference().toDBObject());			
+			it.setData(PREFS, col.getReadPreference().toDocument());			
 			it.setData(CAPPED, col.isCapped());				
 		}		
 	}
@@ -222,11 +210,11 @@ public class SystemMainController {
 			
 			if(!name.equals("system.indexes") && !name.equals("system.users")) {
 				if(using != null) {
-					using.setForeground(oldColor);
+//					using.setForeground(oldColor);
 				}
 				
 				using = item;
-				oldColor = using.getForeground();
+//				oldColor = using.getForeground();
 				using.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_RED));
 				
 				mainWindow.setUsingText(using.getData(NOME).toString());

@@ -2,18 +2,16 @@ package br.org.isvi.mgadmin.controllers;
 
 import java.util.ArrayList;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-
-import br.org.isvi.mgadmin.model.PreparedStatment;
-import br.org.isvi.mgadmin.model.Query;
-
 import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+
+import br.org.isvi.mgadmin.RemoteLogger;
+import br.org.isvi.mgadmin.data.structure.Tree;
+import br.org.isvi.mgadmin.data.structure.TreeItem;
+import br.org.isvi.mgadmin.model.PreparedStatment;
+import br.org.isvi.mgadmin.model.Query;
 
 public class QueryControler {
 
@@ -108,14 +106,14 @@ public class QueryControler {
 	}	
 	
 	public void createItem(DBObject obj, Tree tree) {		
-		TreeItem item = new TreeItem (tree, SWT.NONE);
+		TreeItem item = new TreeItem (tree);
 		item.setText (0, "Document");
 		item.setText (1, obj.toString());
 		item.setData("db", stm.collection);
 		
 		for(String k : obj.keySet()) {
 			
-			TreeItem fld = new TreeItem (item, SWT.NONE);
+			TreeItem fld = new TreeItem (item);
 			
 			fld.setText (0, k);
 			
@@ -132,7 +130,7 @@ public class QueryControler {
 	}
 	
 	public void createItem(DBObject obj, TreeItem par) {
-		TreeItem item = new TreeItem (par, SWT.NONE);
+		TreeItem item = new TreeItem (par);
 		item.setData("db", stm.collection);
 		
 		if(obj instanceof BasicDBList)
@@ -144,7 +142,7 @@ public class QueryControler {
 		
 		for(String k : obj.keySet()) {
 			
-			TreeItem fld = new TreeItem (item, SWT.NONE);
+			TreeItem fld = new TreeItem (item);
 			
 			fld.setText (0, k);
 			
@@ -159,18 +157,18 @@ public class QueryControler {
 		}
 	}
 
-	public void setLogResult(StyledText stlTxtLog) {
+	public void setLogResult(RemoteLogger logger) {
 		
-		stlTxtLog.setText("");
+		logger.clear();
 		
-		if(res != null) {
-			//stlTxtLog.append("Operation realized with success!");
-			if(res.getError()!=null)
-				stlTxtLog.append("Error:" + res.getError());
-			else
-				stlTxtLog.append("Affected documents: " + res.getN());
-		} else if(cursor != null) {
-			stlTxtLog.append("Total documents retrived:" + cursor.count());
-		}
+//		if(res != null) {
+//			//stlTxtLog.append("Operation realized with success!");
+//			if(res.getError()!=null)
+//				stlTxtLog.append("Error:" + res.getError());
+//			else
+//				stlTxtLog.append("Affected documents: " + res.getN());
+//		} else if(cursor != null) {
+//			stlTxtLog.append("Total documents retrived:" + cursor.count());
+//		}
 	}
 }

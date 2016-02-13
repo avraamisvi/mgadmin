@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mongodb.DBCollection;
 
-import br.org.isvi.mgadmin.MainWindow;
+import br.org.isvi.mgadmin.RemoteGui;
 import br.org.isvi.mgadmin.lex.LexicalAnalyser;
 import br.org.isvi.mgadmin.lex.Symbol;
 import br.org.isvi.mgadmin.lex.SymbolType;
@@ -15,11 +15,11 @@ import br.org.isvi.mgadmin.model.PreparedStatment.Type;
 public class QueryProcessor {
 	
 	public String error;
-	private MainWindow window;
+	private RemoteGui window;
 	private DBCollection collection;
 	private PreparedStatment command;
 	
-	public void processCommand(String cmd, MainWindow window, PreparedStatment command) throws Exception {
+	public void processCommand(String cmd, RemoteGui window, PreparedStatment command) throws Exception {
 	
 		this.window = window;
 		this.command = command;
